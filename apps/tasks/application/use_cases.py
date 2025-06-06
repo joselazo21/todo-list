@@ -59,18 +59,25 @@ class UpdateTaskUseCase:
     
     def execute(self, dto: UpdateTaskDTO) -> TaskDTO:
         """Execute task update"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"UpdateTaskUseCase - DTO: {dto}")
+        
         # Find existing task
         existing_task = self._task_repository.find_by_id(dto.task_id)
         if not existing_task:
             raise ValueError(f"Task with ID {dto.task_id} not found")
         
-        # Create updated task
+        logger.info(f"UpdateTaskUseCase - Found existing task: {existing_task.title}")
+        
+        # Create updated task (don't set status yet if it's changing)
         updated_task = Task(
             id=existing_task.id,
             title=dto.title if dto.title is not None else existing_task.title,
             description=dto.description if dto.description is not None else existing_task.description,
             priority=dto.to_priority_enum() if dto.priority is not None else existing_task.priority,
-            status=dto.to_status_enum() if dto.status is not None else existing_task.status,
+            status=existing_task.status,  # Keep original status initially
             due_date=dto.due_date if dto.due_date is not None else existing_task.due_date,
             completed_at=existing_task.completed_at,
             user_id=existing_task.user_id,
@@ -78,18 +85,29 @@ class UpdateTaskUseCase:
             updated_at=datetime.now()
         )
         
-        # Handle status change to completed
-        if (dto.status == 'completed' and 
-            existing_task.status != TaskStatus.COMPLETED):
+        logger.info(f"UpdateTaskUseCase - Status change: {dto.status}, existing: {existing_task.status}")
+        
+        # Handle status changes
+        if dto.status == 'completed' and existing_task.status != TaskStatus.COMPLETED:
             updated_task.mark_as_completed()
+            logger.info("UpdateTaskUseCase - Marked as completed")
+        elif dto.status == 'pending' and existing_task.status == TaskStatus.COMPLETED:
+            updated_task.mark_as_pending()
+            logger.info("UpdateTaskUseCase - Marked as pending")
+        elif dto.status is not None and dto.status != existing_task.status.value:
+            # For other status changes, set directly
+            updated_task.status = dto.to_status_enum()
+            logger.info(f"UpdateTaskUseCase - Status changed to: {dto.status}")
         
         # Validate business rules
         validation_errors = self._validation_service.validate_task_update(existing_task, updated_task)
         if validation_errors:
+            logger.error(f"UpdateTaskUseCase - Validation errors: {validation_errors}")
             raise ValueError(f"Validation failed: {', '.join(validation_errors)}")
         
         # Save updated task
         saved_task = self._task_repository.save(updated_task)
+        logger.info(f"UpdateTaskUseCase - Task saved successfully")
         
         return TaskDTO.from_entity(saved_task)
 

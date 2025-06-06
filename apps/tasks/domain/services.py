@@ -2,7 +2,8 @@
 Task domain services - Complex business logic that doesn't belong to entities
 """
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
 from .entities import Task, TaskPriority, TaskStatus, TaskStatistics
 from .repositories import TaskRepository
 
@@ -19,7 +20,7 @@ class TaskDomainService:
         Business rule: Tasks due within 24 hours become HIGH priority
         Tasks due within 1 hour become URGENT priority
         """
-        now = datetime.now()
+        now = timezone.now()
         updated_tasks = []
         
         for task in tasks:
@@ -45,7 +46,7 @@ class TaskDomainService:
         user_tasks = self._task_repository.find_by_user_id(user_id)
         
         # Filter tasks from last N days
-        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_date = timezone.now() - timedelta(days=days)
         recent_tasks = [
             task for task in user_tasks 
             if task.created_at and task.created_at >= cutoff_date
@@ -184,7 +185,7 @@ class TaskValidationService:
         
         # Business rule: Tasks due within 1 hour must be high priority or urgent
         if task.due_date:
-            time_until_due = task.due_date - datetime.now()
+            time_until_due = task.due_date - timezone.now()
             if (time_until_due <= timedelta(hours=1) and 
                 task.priority not in [TaskPriority.HIGH, TaskPriority.URGENT]):
                 errors.append("Tasks due within 1 hour must be HIGH or URGENT priority")
@@ -206,7 +207,7 @@ class TaskValidationService:
         if (original_task.is_completed and 
             not updated_task.is_completed and
             original_task.completed_at and
-            datetime.now() - original_task.completed_at > timedelta(hours=24)):
+            timezone.now() - original_task.completed_at > timedelta(hours=24)):
             errors.append("Cannot uncomplete a task that was completed more than 24 hours ago")
         
         return errors

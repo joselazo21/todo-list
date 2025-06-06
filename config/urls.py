@@ -10,6 +10,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from apps.shared.views import health_check
 
 urlpatterns = [
     # Admin
@@ -18,7 +19,12 @@ urlpatterns = [
     # API v2 - New Clean Architecture
     path('api/v2/tasks/', include('apps.tasks.presentation.urls')),
     path('api/v2/users/', include('apps.users.presentation.urls')),
-    # path('api/v2/auth/', include('apps.authentication.presentation.urls')),  # To be implemented
+    path('api/v2/auth/', include('apps.authentication.presentation.urls')),
+    
+    # API v1 - For frontend compatibility
+    path('api/v1/auth/', include('apps.authentication.presentation.urls')),
+    path('api/v1/tasks/', include('apps.tasks.presentation.urls')),
+    path('api/v1/users/', include('apps.users.presentation.urls')),
     
     # API v1 - Legacy (for backward compatibility) - Commented out for simplification
     # path('api/v1/', include('api.urls')),

@@ -101,9 +101,6 @@ class User:
         if self.status == UserStatus.ACTIVE:
             raise ValueError("User is already active")
         
-        if not self.is_email_verified:
-            raise ValueError("Cannot activate user with unverified email")
-        
         self.status = UserStatus.ACTIVE
         self.unlock_account()
     
@@ -116,7 +113,6 @@ class User:
     def is_active(self) -> bool:
         """Check if user is active and can login"""
         return (self.status == UserStatus.ACTIVE and 
-                self.is_email_verified and 
                 not self.is_account_locked())
     
     def can_login(self) -> bool:

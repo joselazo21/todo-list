@@ -149,11 +149,33 @@ class TaskDetailView(APIView):
             repository = DjangoTaskRepository()
             use_case = UpdateTaskUseCase(repository)
             
+            # Debug logging
+            logger.info(f"PUT request data for task {task_id}: {request.data}")
+            
             # Validate input
             serializer = UpdateTaskSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
+            if not serializer.is_valid():
+                logger.error(f"Validation errors for task {task_id}: {serializer.errors}")
+                return Response(
+                    {'error': 'Validation failed', 'details': serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             update_dto = serializer.to_dto(task_id)
+            
+            # Check authorization - task must belong to current user
+            existing_task = repository.find_by_id(task_id)
+            if not existing_task:
+                return Response(
+                    {'error': 'Task not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            if existing_task.user_id != str(request.user.id):
+                return Response(
+                    {'error': 'Access denied'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
             
             # Execute use case
             task_dto = use_case.execute(update_dto)
@@ -165,6 +187,7 @@ class TaskDetailView(APIView):
             return Response(response_serializer.data)
             
         except ValueError as e:
+            logger.error(f"ValueError updating task {task_id}: {str(e)}")
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST

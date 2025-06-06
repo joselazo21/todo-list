@@ -1,29 +1,57 @@
-# Todo List API
+# Todo List API - Backend
 
-A comprehensive Todo List API built with Django REST Framework, featuring user management, task prioritization, filtering, and comprehensive documentation.
+Una API REST completa para gestión de tareas construida con Django REST Framework, implementando Clean Architecture y características avanzadas de seguridad.
 
-## Features
+## 🚀 Características Principales
 
-- **User Authentication**: JWT-based authentication with registration and login
-- **Enhanced Security**: Account locking, failed login tracking, rate limiting, and brute force protection
-- **User Management**: Create and manage users with email verification and enhanced validation
-- **Task Management**: Full CRUD operations for tasks with priorities and due dates
-- **Advanced Filtering**: Filter tasks by completion status, priority, due date, and more
-- **Search Functionality**: Search tasks by title, description, or user name
-- **Statistics**: Get insights about tasks and users
-- **Bulk Operations**: Complete multiple tasks at once
-- **API Documentation**: Auto-generated Swagger/OpenAPI documentation
-- **Comprehensive Testing**: Full test coverage for models, views, and API endpoints
+- **Autenticación JWT**: Autenticación basada en tokens con registro y login
+- **Seguridad Avanzada**: Bloqueo de cuentas, seguimiento de intentos fallidos, rate limiting y protección contra fuerza bruta
+- **Gestión de Usuarios**: Crear y gestionar usuarios con verificación de email y validación mejorada
+- **Gestión de Tareas**: Operaciones CRUD completas para tareas con prioridades y fechas de vencimiento
+- **Filtrado Avanzado**: Filtrar tareas por estado de completado, prioridad, fecha de vencimiento y más
+- **Funcionalidad de Búsqueda**: Buscar tareas por título, descripción o nombre de usuario
+- **Estadísticas**: Obtener insights sobre tareas y usuarios
+- **Operaciones en Lote**: Completar múltiples tareas a la vez
+- **Documentación API**: Documentación automática Swagger/OpenAPI
+- **Testing Completo**: Cobertura completa de tests para modelos, vistas y endpoints de API
 
-## Technology Stack
+## 🛠️ Stack Tecnológico
 
 - **Backend**: Django 5.2.1, Django REST Framework 3.15.2
-- **Authentication**: JWT (Simple JWT), Django Axes for brute force protection
-- **Database**: PostgreSQL
-- **Documentation**: drf-spectacular (OpenAPI/Swagger)
-- **Security**: CORS headers, rate limiting, input validation
+- **Autenticación**: JWT (Simple JWT), Django Axes para protección contra fuerza bruta
+- **Base de Datos**: PostgreSQL
+- **Documentación**: drf-spectacular (OpenAPI/Swagger)
+- **Seguridad**: Headers CORS, rate limiting, validación de entrada
 - **Testing**: Django TestCase, DRF APITestCase
-- **Code Quality**: Comprehensive logging, validation, and error handling
+- **Calidad de Código**: Logging completo, validación y manejo de errores
+
+## 🏗️ Arquitectura Clean Architecture
+
+El proyecto implementa Clean Architecture con las siguientes capas:
+
+```
+apps/
+├── authentication/          # Módulo de autenticación
+│   ├── domain/             # Entidades y reglas de negocio
+│   ├── application/        # Casos de uso y DTOs
+│   ├── infrastructure/     # Repositorios e implementaciones
+│   └── presentation/       # Controladores y serializers
+├── tasks/                  # Módulo de tareas
+│   ├── domain/
+│   ├── application/
+│   ├── infrastructure/
+│   └── presentation/
+├── users/                  # Módulo de usuarios
+│   ├── domain/
+│   ├── application/
+│   ├── infrastructure/
+│   └── presentation/
+└── shared/                 # Componentes compartidos
+    ├── domain/
+    ├── application/
+    ├── infrastructure/
+    └── presentation/
+```
 
 ## Installation
 
@@ -66,33 +94,37 @@ A comprehensive Todo List API built with Django REST Framework, featuring user m
    python manage.py runserver
    ```
 
-## API Endpoints
+## 📡 API Endpoints
 
-### Authentication
-- `POST /api/v1/auth/register/` - Register a new user
-- `POST /api/v1/auth/login/` - Login user (returns JWT tokens)
+### 🔐 Autenticación (`/api/v1/auth/` y `/api/v2/auth/`)
+- `POST /register/` - Registrar un nuevo usuario
+- `POST /login/` - Login de usuario (retorna tokens JWT)
+- `POST /refresh/` - Refrescar token de acceso
+- `POST /logout/` - Cerrar sesión
+- `POST /validate-token/` - Validar token
+- `POST /password-reset/` - Solicitar reset de contraseña
+- `POST /password-reset-confirm/` - Confirmar reset de contraseña
+- `GET /sessions/` - Obtener sesiones del usuario
+- `GET /security-events/` - Obtener eventos de seguridad
 
-### Tasks
-- `GET /api/v1/tasks/` - List all tasks (with filtering and search)
-- `POST /api/v1/tasks/` - Create a new task
-- `GET /api/v1/tasks/{id}/` - Retrieve a specific task
-- `PUT /api/v1/tasks/{id}/` - Update a task
-- `DELETE /api/v1/tasks/{id}/` - Delete a task
+### 📋 Tareas (`/api/v1/tasks/` y `/api/v2/tasks/`)
+- `GET /` - Listar todas las tareas (con filtrado y búsqueda)
+- `POST /` - Crear una nueva tarea
+- `GET /{id}/` - Obtener una tarea específica
+- `PUT /{id}/` - Actualizar una tarea
+- `DELETE /{id}/` - Eliminar una tarea
+- `POST /bulk-complete/` - Marcar múltiples tareas como completadas
+- `GET /statistics/` - Obtener estadísticas de tareas
+- `GET /productivity/` - Obtener métricas de productividad
 
-### Users
-- `GET /api/v1/users/` - List all users
-- `POST /api/v1/users/` - Create a new user
-- `GET /api/v1/users/{id}/` - Retrieve a specific user
-- `PUT /api/v1/users/{id}/` - Update a user
-- `DELETE /api/v1/users/{id}/` - Delete a user
-- `GET /api/v1/users/{id}/tasks/` - Get user with their tasks
-
-### Statistics
-- `GET /api/v1/statistics/tasks/` - Get task statistics
-- `GET /api/v1/statistics/users/` - Get user statistics
-
-### Bulk Operations
-- `POST /api/v1/tasks/bulk-complete/` - Mark multiple tasks as completed
+### 👥 Usuarios (`/api/v1/users/` y `/api/v2/users/`)
+- `GET /` - Listar todos los usuarios
+- `POST /` - Crear un nuevo usuario
+- `GET /{id}/` - Obtener un usuario específico
+- `PUT /{id}/` - Actualizar un usuario
+- `DELETE /{id}/` - Eliminar un usuario
+- `GET /{id}/tasks/` - Obtener usuario con sus tareas
+- `GET /statistics/` - Obtener estadísticas de usuarios
 
 ## Filtering and Search
 

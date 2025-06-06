@@ -85,9 +85,20 @@ def configure_dependencies():
         ListUsersUseCase, ChangePasswordUseCase
     )
     
+    # Authentication domain
+    from apps.authentication.domain.repositories import (
+        AuthTokenRepository, LoginAttemptRepository, AuthSessionRepository,
+        PasswordResetRepository, SecurityEventRepository
+    )
+    from apps.authentication.infrastructure.repositories import (
+        CacheAuthTokenRepository, CacheLoginAttemptRepository, CacheAuthSessionRepository,
+        CachePasswordResetRepository, CacheSecurityEventRepository
+    )
     from apps.authentication.domain.services import AuthenticationDomainService
     from apps.authentication.application.use_cases import (
-        LoginUseCase, RefreshTokenUseCase, LogoutUseCase, ValidateTokenUseCase
+        LoginUseCase, RefreshTokenUseCase, LogoutUseCase, ValidateTokenUseCase,
+        PasswordResetRequestUseCase, ResetPasswordUseCase, GetUserSessionsUseCase,
+        GetSecurityEventsUseCase
     )
     
     # Register Task repositories
@@ -95,6 +106,13 @@ def configure_dependencies():
     
     # Register User repositories
     container.register_singleton(UserRepository, DjangoUserRepository)
+    
+    # Register Authentication repositories
+    container.register_singleton(AuthTokenRepository, CacheAuthTokenRepository)
+    container.register_singleton(LoginAttemptRepository, CacheLoginAttemptRepository)
+    container.register_singleton(AuthSessionRepository, CacheAuthSessionRepository)
+    container.register_singleton(PasswordResetRepository, CachePasswordResetRepository)
+    container.register_singleton(SecurityEventRepository, CacheSecurityEventRepository)
     
     # Register Task domain services
     container.register_factory(
@@ -106,6 +124,17 @@ def configure_dependencies():
     container.register_factory(
         UserDomainService,
         lambda: UserDomainService(container.get(UserRepository))
+    )
+    
+    # Register Authentication domain services
+    container.register_factory(
+        AuthenticationDomainService,
+        lambda: AuthenticationDomainService(
+            container.get(AuthTokenRepository),
+            container.get(LoginAttemptRepository),
+            container.get(AuthSessionRepository),
+            container.get(SecurityEventRepository)
+        )
     )
     
     # Register Task use cases
@@ -173,6 +202,57 @@ def configure_dependencies():
             container.get(UserDomainService)
         )
     )
+    
+    # Register Authentication use cases
+    container.register_factory(
+        LoginUseCase,
+        lambda: LoginUseCase(
+            container.get(UserRepository),
+            container.get(UserDomainService),
+            container.get(AuthenticationDomainService)
+        )
+    )
+    
+    container.register_factory(
+        RefreshTokenUseCase,
+        lambda: RefreshTokenUseCase(container.get(AuthenticationDomainService))
+    )
+    
+    container.register_factory(
+        LogoutUseCase,
+        lambda: LogoutUseCase(container.get(AuthenticationDomainService))
+    )
+    
+    container.register_factory(
+        ValidateTokenUseCase,
+        lambda: ValidateTokenUseCase(container.get(AuthenticationDomainService))
+    )
+    
+    container.register_factory(
+        PasswordResetRequestUseCase,
+        lambda: PasswordResetRequestUseCase(
+            container.get(UserRepository),
+            container.get(AuthenticationDomainService)
+        )
+    )
+    
+    container.register_factory(
+        ResetPasswordUseCase,
+        lambda: ResetPasswordUseCase(
+            container.get(UserRepository),
+            container.get(UserDomainService)
+        )
+    )
+    
+    container.register_factory(
+        GetUserSessionsUseCase,
+        lambda: GetUserSessionsUseCase(container.get(AuthSessionRepository))
+    )
+    
+    container.register_factory(
+        GetSecurityEventsUseCase,
+        lambda: GetSecurityEventsUseCase(container.get(SecurityEventRepository))
+    )
 
 
 # Decorator for dependency injection
@@ -184,3 +264,8 @@ def inject(interface: Type[T]) -> Callable:
             return func(service, *args, **kwargs)
         return wrapper
     return decorator
+
+
+def get_dependency(interface: Type[T]) -> T:
+    """Get dependency from container"""
+    return container.get(interface)

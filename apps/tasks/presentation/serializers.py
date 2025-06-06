@@ -41,7 +41,7 @@ class CreateTaskSerializer(serializers.Serializer):
 
 class UpdateTaskSerializer(serializers.Serializer):
     """Serializer for task updates"""
-    title = serializers.CharField(max_length=200, min_length=3, required=False)
+    title = serializers.CharField(max_length=200, required=False)
     description = serializers.CharField(allow_blank=True, required=False)
     priority = serializers.ChoiceField(
         choices=['low', 'medium', 'high', 'urgent'],
@@ -57,6 +57,8 @@ class UpdateTaskSerializer(serializers.Serializer):
         """Validate title"""
         if value is not None and not value.strip():
             raise serializers.ValidationError("Title cannot be empty")
+        if value is not None and len(value.strip()) < 3:
+            raise serializers.ValidationError("Title must be at least 3 characters long")
         return value.strip() if value else value
     
     def to_dto(self, task_id: str) -> UpdateTaskDTO:

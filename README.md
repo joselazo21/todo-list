@@ -4,8 +4,10 @@ A comprehensive Todo List API built with Django REST Framework, featuring user m
 
 ## Features
 
-- **User Management**: Create and manage users with validation
-- **Task Management**: Full CRUD operations for tasks with priorities
+- **User Authentication**: JWT-based authentication with registration and login
+- **Enhanced Security**: Account locking, failed login tracking, rate limiting, and brute force protection
+- **User Management**: Create and manage users with email verification and enhanced validation
+- **Task Management**: Full CRUD operations for tasks with priorities and due dates
 - **Advanced Filtering**: Filter tasks by completion status, priority, due date, and more
 - **Search Functionality**: Search tasks by title, description, or user name
 - **Statistics**: Get insights about tasks and users
@@ -16,8 +18,10 @@ A comprehensive Todo List API built with Django REST Framework, featuring user m
 ## Technology Stack
 
 - **Backend**: Django 5.2.1, Django REST Framework 3.15.2
+- **Authentication**: JWT (Simple JWT), Django Axes for brute force protection
 - **Database**: PostgreSQL
 - **Documentation**: drf-spectacular (OpenAPI/Swagger)
+- **Security**: CORS headers, rate limiting, input validation
 - **Testing**: Django TestCase, DRF APITestCase
 - **Code Quality**: Comprehensive logging, validation, and error handling
 
@@ -64,6 +68,10 @@ A comprehensive Todo List API built with Django REST Framework, featuring user m
 
 ## API Endpoints
 
+### Authentication
+- `POST /api/v1/auth/register/` - Register a new user
+- `POST /api/v1/auth/login/` - Login user (returns JWT tokens)
+
 ### Tasks
 - `GET /api/v1/tasks/` - List all tasks (with filtering and search)
 - `POST /api/v1/tasks/` - Create a new task
@@ -104,6 +112,40 @@ A comprehensive Todo List API built with Django REST Framework, featuring user m
 - `?ordering=-due_date` - Order by due date (descending)
 - `?ordering=priority` - Order by priority
 
+## Authentication
+
+The API uses JWT (JSON Web Token) authentication. To access protected endpoints:
+
+1. **Register a new user**:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/register/ \
+     -H "Content-Type: application/json" \
+     -d '{"name": "John Doe", "email": "john@example.com", "password": "securepassword123"}'
+   ```
+
+2. **Login to get JWT tokens**:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/login/ \
+     -H "Content-Type: application/json" \
+     -d '{"email": "john@example.com", "password": "securepassword123"}'
+   ```
+
+3. **Use the access token in requests**:
+   ```bash
+   curl -X GET http://localhost:8000/api/v1/tasks/ \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+   ```
+
+### Token Management
+- **Access tokens** expire after 60 minutes
+- **Refresh tokens** expire after 7 days
+- Use refresh tokens to get new access tokens without re-authentication
+
+### Security Features
+- Account lockout after 5 failed login attempts (30-minute cooldown)
+- Rate limiting on authentication endpoints
+- IP address tracking for security monitoring
+
 ## API Documentation
 
 Access the interactive API documentation:
@@ -117,8 +159,12 @@ Access the interactive API documentation:
 ### User
 - `id` (UUID): Unique identifier
 - `name` (CharField): User's full name (min 2 characters)
-- `email` (EmailField): Unique email address
+- `email` (EmailField): Unique email address (used as username)
 - `is_active` (BooleanField): Account status
+- `is_email_verified` (BooleanField): Email verification status
+- `last_login_ip` (GenericIPAddressField): IP address of last login
+- `failed_login_attempts` (PositiveIntegerField): Failed login attempt counter
+- `account_locked_until` (DateTimeField): Account lock expiration timestamp
 - `created_at` (DateTimeField): Creation timestamp
 - `updated_at` (DateTimeField): Last update timestamp
 
@@ -188,11 +234,15 @@ The application includes comprehensive logging:
 
 ## Security Features
 
-- Environment-based configuration
-- Input validation and sanitization
-- CORS configuration for frontend integration
-- Secure database connections
-- Comprehensive error handling
+- **JWT Authentication**: Secure token-based authentication with refresh tokens
+- **Account Security**: Automatic account locking after 5 failed login attempts
+- **Rate Limiting**: API rate limiting (5 login attempts per minute, 3 registrations per minute)
+- **Brute Force Protection**: Django Axes integration for advanced attack prevention
+- **Input Validation**: Comprehensive validation and sanitization
+- **CORS Configuration**: Secure cross-origin resource sharing setup
+- **Environment-based Configuration**: Secure settings management
+- **Password Security**: Django's built-in password validation
+- **IP Tracking**: Login attempt tracking with IP address logging
 
 ## Performance Optimizations
 
@@ -200,6 +250,41 @@ The application includes comprehensive logging:
 - Efficient filtering with database indexes
 - Pagination for large datasets
 - Optimized admin queries
+
+## Troubleshooting
+
+### Database Issues
+
+If you encounter database-related errors:
+
+1. **Missing columns error** (e.g., "column 'last_login' does not exist"):
+   ```bash
+   # Reset and reapply migrations
+   python manage.py migrate api zero --fake
+   python manage.py migrate api
+   ```
+
+2. **Migration conflicts**:
+   ```bash
+   # Check migration status
+   python manage.py showmigrations
+   
+   # If needed, reset all migrations
+   python manage.py migrate --fake-initial
+   ```
+
+### Configuration Warnings
+
+If you see Django Axes or static files warnings:
+- Ensure the `static` directory exists: `mkdir -p static`
+- Check that `AUTHENTICATION_BACKENDS` includes `axes.backends.AxesStandaloneBackend`
+- Verify Axes configuration uses modern settings (not deprecated ones)
+
+### Authentication Issues
+
+1. **Account locked**: Wait 30 minutes or reset failed attempts in Django admin
+2. **Token expired**: Use refresh token to get new access token
+3. **Rate limiting**: Wait for the rate limit window to reset
 
 ## Contributing
 

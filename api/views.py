@@ -5,12 +5,15 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters_rf
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
 import logging
 
 from .models import Task, User, TaskPriority
 from .serializers import (
     TaskDetailSerializer, TaskListSerializer, TaskCreateSerializer,
-    UserSerializer, UserTasksSerializer
+    UserSerializer, UserTasksSerializer, RegisterSerializer
 )
 
 logger = logging.getLogger(__name__)
@@ -123,6 +126,40 @@ class UserTasksView(generics.RetrieveAPIView):
     """
     queryset = User.objects.prefetch_related('tasks').all()
     serializer_class = UserTasksSerializer
+
+
+class RegisterView(generics.CreateAPIView):
+    """
+    Register a new user.
+    """
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+
+class LoginView(APIView):
+    """
+    Login user.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        if not email or not password:
+            return Response({'error': 'Email and password are required.'}, status=400)
+        try:
+            user = User.objects.get(email=email)
+            if user.check_password(password):
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({
+                    'message': 'Login successful',
+                    'user_id': str(user.id),
+                    'token': token.key
+                })
+            else:
+                return Response({'error': 'Invalid credentials.'}, status=400)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid credentials.'}, status=400)
 
 
 @api_view(['GET'])

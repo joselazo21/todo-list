@@ -19,4 +19,9 @@ urlpatterns = [
     
     # Bulk operations
     path('tasks/bulk-complete/', views.bulk_complete_tasks, name='bulk-complete-tasks'),
+    
+    # Registro de usuarios
+    path('auth/register/', views.RegisterView.as_view(), name='register'),
+    # Login de usuarios
+    path('auth/login/', views.LoginView.as_view(), name='login'),
 ]

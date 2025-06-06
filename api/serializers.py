@@ -1,6 +1,9 @@
 from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils import timezone
 from .models import Task, User, TaskPriority
+from .utils import validate_password_strength
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -127,6 +130,35 @@ class UserTasksSerializer(serializers.ModelSerializer):
             'id', 'name', 'email', 'is_active', 'created_at',
             'active_tasks_count', 'completed_tasks_count', 'tasks'
         ]
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    """Serializer for user registration"""
+    password = serializers.CharField(write_only=True, min_length=6)
+
+    class Meta:
+        model = User
+        fields = ['name', 'email', 'password']
+
+    def validate_name(self, value):
+        """Validate name field"""
+        if len(value.strip()) < 2:
+            raise serializers.ValidationError("Name must be at least 2 characters long.")
+        return value.strip().title()
+
+    def validate_email(self, value):
+        """Validate email field"""
+        value = value.lower()
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
 
 
 # Alias for backward compatibility

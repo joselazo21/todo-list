@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -15,8 +16,12 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class User(BaseModel):
-    """User model with enhanced validation"""
+class User(AbstractUser, BaseModel):
+    """Enhanced User model extending Django's AbstractUser"""
+    # Override the default username field
+    username = None
+    
+    # Custom fields
     name = models.CharField(
         max_length=100,
         validators=[MinLengthValidator(2)],
@@ -26,7 +31,28 @@ class User(BaseModel):
         unique=True,
         help_text="User's email address (must be unique)"
     )
-    is_active = models.BooleanField(default=True)
+    is_email_verified = models.BooleanField(
+        default=False,
+        help_text="Whether the user's email has been verified"
+    )
+    last_login_ip = models.GenericIPAddressField(
+        null=True, 
+        blank=True,
+        help_text="IP address of last login"
+    )
+    failed_login_attempts = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of consecutive failed login attempts"
+    )
+    account_locked_until = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Account locked until this timestamp"
+    )
+    
+    # Use email as the username field
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
 
     def __str__(self):
         return f"{self.name} ({self.email})"
@@ -46,6 +72,37 @@ class User(BaseModel):
     def completed_tasks_count(self):
         """Return count of completed tasks"""
         return self.tasks.filter(completed=True).count()
+    
+    @property
+    def is_account_locked(self):
+        """Check if account is currently locked"""
+        if self.account_locked_until:
+            return timezone.now() < self.account_locked_until
+        return False
+    
+    def lock_account(self, duration_minutes=30):
+        """Lock the account for specified duration"""
+        self.account_locked_until = timezone.now() + timezone.timedelta(minutes=duration_minutes)
+        self.save(update_fields=['account_locked_until'])
+    
+    def unlock_account(self):
+        """Unlock the account"""
+        self.account_locked_until = None
+        self.failed_login_attempts = 0
+        self.save(update_fields=['account_locked_until', 'failed_login_attempts'])
+    
+    def increment_failed_login(self):
+        """Increment failed login attempts"""
+        self.failed_login_attempts += 1
+        if self.failed_login_attempts >= 5:
+            self.lock_account()
+        self.save(update_fields=['failed_login_attempts'])
+    
+    def reset_failed_login(self):
+        """Reset failed login attempts on successful login"""
+        if self.failed_login_attempts > 0:
+            self.failed_login_attempts = 0
+            self.save(update_fields=['failed_login_attempts'])
 
     class Meta:
         verbose_name = "User"
@@ -54,6 +111,8 @@ class User(BaseModel):
         indexes = [
             models.Index(fields=['email']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['account_locked_until']),
         ]
 
 

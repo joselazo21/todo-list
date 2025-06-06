@@ -68,3 +68,22 @@ django.db.utils.ProgrammingError: column "updated_at" of relation "api_user" doe
 LINE 1: INSERT INTO "api_user" ("id", "created_at", "updated_at", "n...
                                                     ^
 
+INFO 2025-06-06 05:02:01,867 apps 1689746 138823361104768 AXES: BEGIN version 6.1.1, blocking by username or ip_address
+INFO 2025-06-06 05:02:03,780 apps 1689833 129495653415808 AXES: BEGIN version 6.1.1, blocking by username or ip_address
+WARNING 2025-06-06 05:02:09,827 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/bulk-complete/
+WARNING 2025-06-06 05:02:09,841 log 1689833 129495653415808 Unauthorized: /api/v1/statistics/tasks/
+WARNING 2025-06-06 05:02:09,846 log 1689833 129495653415808 Unauthorized: /api/v1/statistics/users/
+WARNING 2025-06-06 05:02:09,858 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/
+WARNING 2025-06-06 05:02:09,862 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/58bb8131-d237-43a8-9092-390b26cb1786/
+WARNING 2025-06-06 05:02:09,867 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/
+WARNING 2025-06-06 05:02:09,871 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/
+WARNING 2025-06-06 05:02:09,876 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/
+WARNING 2025-06-06 05:02:09,880 log 1689833 129495653415808 Unauthorized: /api/v1/tasks/dce8e2ce-781b-4f67-9e31-a51afc93d6ab/
+WARNING 2025-06-06 05:02:09,914 log 1689833 129495653415808 Unauthorized: /api/v1/users/
+WARNING 2025-06-06 05:02:09,918 log 1689833 129495653415808 Unauthorized: /api/v1/users/
+WARNING 2025-06-06 05:02:09,922 log 1689833 129495653415808 Unauthorized: /api/v1/users/68e403df-e621-4bea-b14a-0adcf9a3bbe8/tasks/
+INFO 2025-06-06 06:08:45,650 autoreload 1747011 125167545105280 Watching for file changes with StatReloader
+INFO 2025-06-06 06:08:51,644 autoreload 1747134 128037395659648 Watching for file changes with StatReloader
+INFO 2025-06-06 06:16:16,979 autoreload 1753572 139393268349824 Watching for file changes with StatReloader
+INFO 2025-06-06 06:16:20,586 autoreload 1753655 135929671527296 Watching for file changes with StatReloader
+INFO 2025-06-06 06:16:23,381 autoreload 1753730 130334406761344 Watching for file changes with StatReloader

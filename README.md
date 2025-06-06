@@ -1,332 +1,373 @@
-# Todo List API - Backend
+# 🚀 Todo List Application - Full Stack
 
-Una API REST completa para gestión de tareas construida con Django REST Framework, implementando Clean Architecture y características avanzadas de seguridad.
+Una aplicación completa de lista de tareas con frontend en React y backend en Django, implementando arquitectura limpia y completamente dockerizada para fácil despliegue.
 
-## 🚀 Características Principales
+## 📥 Clonar el Proyecto
 
-- **Autenticación JWT**: Autenticación basada en tokens con registro y login
-- **Seguridad Avanzada**: Bloqueo de cuentas, seguimiento de intentos fallidos, rate limiting y protección contra fuerza bruta
-- **Gestión de Usuarios**: Crear y gestionar usuarios con verificación de email y validación mejorada
-- **Gestión de Tareas**: Operaciones CRUD completas para tareas con prioridades y fechas de vencimiento
-- **Filtrado Avanzado**: Filtrar tareas por estado de completado, prioridad, fecha de vencimiento y más
-- **Funcionalidad de Búsqueda**: Buscar tareas por título, descripción o nombre de usuario
-- **Estadísticas**: Obtener insights sobre tareas y usuarios
-- **Operaciones en Lote**: Completar múltiples tareas a la vez
-- **Documentación API**: Documentación automática Swagger/OpenAPI
-- **Testing Completo**: Cobertura completa de tests para modelos, vistas y endpoints de API
+Para obtener una copia local del proyecto, puede clonarlo usando Git:
 
-## 🛠️ Stack Tecnológico
-
-- **Backend**: Django 5.2.1, Django REST Framework 3.15.2
-- **Autenticación**: JWT (Simple JWT), Django Axes para protección contra fuerza bruta
-- **Base de Datos**: PostgreSQL
-- **Documentación**: drf-spectacular (OpenAPI/Swagger)
-- **Seguridad**: Headers CORS, rate limiting, validación de entrada
-- **Testing**: Django TestCase, DRF APITestCase
-- **Calidad de Código**: Logging completo, validación y manejo de errores
-
-## 🏗️ Arquitectura Clean Architecture
-
-El proyecto implementa Clean Architecture con las siguientes capas:
-
-```
-apps/
-├── authentication/          # Módulo de autenticación
-│   ├── domain/             # Entidades y reglas de negocio
-│   ├── application/        # Casos de uso y DTOs
-│   ├── infrastructure/     # Repositorios e implementaciones
-│   └── presentation/       # Controladores y serializers
-├── tasks/                  # Módulo de tareas
-│   ├── domain/
-│   ├── application/
-│   ├── infrastructure/
-│   └── presentation/
-├── users/                  # Módulo de usuarios
-│   ├── domain/
-│   ├── application/
-│   ├── infrastructure/
-│   └── presentation/
-└── shared/                 # Componentes compartidos
-    ├── domain/
-    ├── application/
-    ├── infrastructure/
-    └── presentation/
+### 🔗 **Usando HTTPS (Recomendado)**
+```bash
+git clone https://github.com/tu-usuario/PruebaTecnica.git
+cd PruebaTecnica
 ```
 
-## Installation
+### 🔑 **Usando SSH**
+```bash
+git clone git@github.com:tu-usuario/PruebaTecnica.git
+cd PruebaTecnica
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd todolist
-   ```
+### 📦 **Descargar ZIP**
+También puede descargar el proyecto como archivo ZIP desde GitHub:
+1. Vaya al repositorio en GitHub
+2. Haga clic en el botón verde "Code"
+3. Seleccione "Download ZIP"
+4. Extraiga el archivo y navegue a la carpeta
 
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### ✅ **Verificar la Clonación**
+Una vez clonado, verifique que tienes todos los archivos:
+```bash
+ls -la
+# Deberia ver: backend/, frontend/, docker-compose.yml, README.md, etc.
+```
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## ⚡ Inicio Rápido
 
-4. **Environment Configuration**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials and settings
-   ```
+### 📋 Prerrequisitos
+- Docker
+- Docker Compose
 
-5. **Database Setup**
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
+### 🚀 Ejecutar la Aplicación
 
-6. **Create Superuser**
-   ```bash
-   python manage.py createsuperuser
-   ```
+#### Método Recomendado (Con información visual):
 
-7. **Run Development Server**
-   ```bash
-   python manage.py runserver
-   ```
+**En Linux/macOS:**
+```bash
+./start-app.sh
+```
 
-## 📡 API Endpoints
+**En Windows:**
+```cmd
+start-app.bat
+```
 
-### 🔐 Autenticación (`/api/v1/auth/` y `/api/v2/auth/`)
-- `POST /register/` - Registrar un nuevo usuario
-- `POST /login/` - Login de usuario (retorna tokens JWT)
-- `POST /refresh/` - Refrescar token de acceso
-- `POST /logout/` - Cerrar sesión
-- `POST /validate-token/` - Validar token
-- `POST /password-reset/` - Solicitar reset de contraseña
-- `POST /password-reset-confirm/` - Confirmar reset de contraseña
-- `GET /sessions/` - Obtener sesiones del usuario
-- `GET /security-events/` - Obtener eventos de seguridad
+#### Método Manual (Docker Compose tradicional):
+```bash
+# Levantar todos los servicios
+docker compose up --build
 
-### 📋 Tareas (`/api/v1/tasks/` y `/api/v2/tasks/`)
-- `GET /` - Listar todas las tareas (con filtrado y búsqueda)
-- `POST /` - Crear una nueva tarea
-- `GET /{id}/` - Obtener una tarea específica
-- `PUT /{id}/` - Actualizar una tarea
-- `DELETE /{id}/` - Eliminar una tarea
-- `POST /bulk-complete/` - Marcar múltiples tareas como completadas
-- `GET /statistics/` - Obtener estadísticas de tareas
-- `GET /productivity/` - Obtener métricas de productividad
+# En segundo plano
+docker compose up --build -d
+```
 
-### 👥 Usuarios (`/api/v1/users/` y `/api/v2/users/`)
-- `GET /` - Listar todos los usuarios
-- `POST /` - Crear un nuevo usuario
-- `GET /{id}/` - Obtener un usuario específico
-- `PUT /{id}/` - Actualizar un usuario
-- `DELETE /{id}/` - Eliminar un usuario
-- `GET /{id}/tasks/` - Obtener usuario con sus tareas
-- `GET /statistics/` - Obtener estadísticas de usuarios
+### 🛑 Detener la Aplicación
+```bash
+docker compose down
+```
 
-## Filtering and Search
+### 🔄 Reiniciar desde Cero
+```bash
+docker compose down -v
+docker compose up --build
+```
 
-### Task Filtering
-- `?completed=true/false` - Filter by completion status
-- `?priority=low/medium/high/urgent` - Filter by priority
-- `?user={user_id}` - Filter by user
-- `?overdue=true/false` - Filter overdue tasks
-- `?due_date_from=YYYY-MM-DD` - Filter tasks due after date
-- `?due_date_to=YYYY-MM-DD` - Filter tasks due before date
+## 🌐 URLs de Acceso
 
-### Search
-- `?search={query}` - Search in task title, description, or user name
+Una vez iniciada la aplicación:
 
-### Ordering
-- `?ordering=created_at` - Order by creation date
-- `?ordering=-due_date` - Order by due date (descending)
-- `?ordering=priority` - Order by priority
+### 🎯 **Aplicación Principal**
+- **URL Principal**: http://localhost:8080
 
-## Authentication
+### 🔧 **Servicios Individuales**
+- **Frontend (React)**: http://localhost:5173
+- **Backend API**: http://localhost:8080/api/
+- **Admin Django**: http://localhost:8080/admin/
+- **API Documentation**: http://localhost:8080/api/schema/swagger-ui/
 
-The API uses JWT (JSON Web Token) authentication. To access protected endpoints:
+### 🗄️ **Base de Datos**
+- **PostgreSQL**: localhost:5432
+- **Database**: todo_database
+- **User**: postgres
+- **Password**: postgres
 
-1. **Register a new user**:
-   ```bash
-   curl -X POST http://localhost:8000/api/v1/auth/register/ \
-     -H "Content-Type: application/json" \
-     -d '{"name": "John Doe", "email": "john@example.com", "password": "securepassword123"}'
-   ```
+## 🏗️ Arquitectura Completa
 
-2. **Login to get JWT tokens**:
-   ```bash
-   curl -X POST http://localhost:8000/api/v1/auth/login/ \
-     -H "Content-Type: application/json" \
-     -d '{"email": "john@example.com", "password": "securepassword123"}'
-   ```
+### 📦 **Servicios Dockerizados**
 
-3. **Use the access token in requests**:
-   ```bash
-   curl -X GET http://localhost:8000/api/v1/tasks/ \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-   ```
+La aplicación está completamente empaquetada en 4 contenedores:
 
-### Token Management
-- **Access tokens** expire after 60 minutes
-- **Refresh tokens** expire after 7 days
-- Use refresh tokens to get new access tokens without re-authentication
+1. **🗄️ PostgreSQL Database** (puerto 5432)
+   - Base de datos principal
+   - Datos persistentes en volumen Docker
+   - Configuración automática
 
-### Security Features
-- Account lockout after 5 failed login attempts (30-minute cooldown)
-- Rate limiting on authentication endpoints
-- IP address tracking for security monitoring
+2. **🐍 Django Backend** (puerto 8000)
+   - API REST con Django REST Framework
+   - Autenticación JWT
+   - Arquitectura limpia con DDD
+   - Instalación automática de dependencias
 
-## API Documentation
+3. **⚛️ React Frontend** (puerto 5173)
+   - Interfaz de usuario con React + TypeScript
+   - Vite como bundler
+   - TailwindCSS para estilos
+   - Instalación automática de dependencias
 
-Access the interactive API documentation:
+4. **🌐 Nginx Reverse Proxy** (puerto 8080)
+   - Proxy reverso que unifica frontend y backend
+   - Manejo de archivos estáticos
+   - Punto de entrada único
 
-- **Swagger UI**: http://localhost:8000/api/docs/
-- **ReDoc**: http://localhost:8000/api/redoc/
-- **OpenAPI Schema**: http://localhost:8000/api/schema/
+### 🎯 **Empaquetado Completo**
 
-## Models
+✅ **No necesitas instalar nada más que Docker**
+- No requiere Node.js, Python, PostgreSQL local
+- Todas las dependencias se instalan automáticamente
+- Base de datos se configura automáticamente
+- Migraciones se ejecutan automáticamente
 
-### User
-- `id` (UUID): Unique identifier
-- `name` (CharField): User's full name (min 2 characters)
-- `email` (EmailField): Unique email address (used as username)
-- `is_active` (BooleanField): Account status
-- `is_email_verified` (BooleanField): Email verification status
-- `last_login_ip` (GenericIPAddressField): IP address of last login
-- `failed_login_attempts` (PositiveIntegerField): Failed login attempt counter
-- `account_locked_until` (DateTimeField): Account lock expiration timestamp
-- `created_at` (DateTimeField): Creation timestamp
-- `updated_at` (DateTimeField): Last update timestamp
+## 📊 Funcionalidades
 
-### Task
-- `id` (UUID): Unique identifier
-- `title` (CharField): Task title (min 3 characters)
-- `description` (TextField): Detailed description
-- `completed` (BooleanField): Completion status
-- `priority` (CharField): Priority level (low/medium/high/urgent)
-- `due_date` (DateTimeField): Optional due date
-- `completed_at` (DateTimeField): Completion timestamp
-- `user` (ForeignKey): Task owner
-- `created_at` (DateTimeField): Creation timestamp
-- `updated_at` (DateTimeField): Last update timestamp
+### 🐍 **Backend (Django API)**
+- ✅ **Autenticación JWT**: Login, registro, refresh tokens
+- ✅ **Seguridad avanzada**: Rate limiting, protección contra fuerza bruta
+- ✅ **CRUD completo de tareas**: Crear, leer, actualizar, eliminar
+- ✅ **Filtrado avanzado**: Por estado, prioridad, fecha
+- ✅ **Búsqueda**: En título y descripción
+- ✅ **Prioridades**: Baja, media, alta, urgente
+- ✅ **Fechas de vencimiento**: Con detección de tareas vencidas
+- ✅ **Estadísticas**: Métricas de productividad
+- ✅ **Documentación automática**: Swagger/OpenAPI
+- ✅ **Admin mejorado**: Interfaz administrativa completa
 
-## Testing
+### ⚛️ **Frontend (React)**
+- ✅ **Interfaz moderna**: Tailwind CSS con diseño responsive
+- ✅ **React 19**: Última versión con TypeScript
+- ✅ **Gestión de estado**: Context API optimizada
+- ✅ **Autenticación**: Manejo automático de tokens
+- ✅ **Componentes reutilizables**: Arquitectura modular
+- ✅ **Estadísticas visuales**: Panel de métricas
+- ✅ **Optimización**: Hooks optimizados para rendimiento
 
-Run the test suite:
+## 📁 Estructura del Proyecto
+
+```
+PruebaTecnica/
+├── backend/                 # Django API
+│   ├── apps/               # Aplicaciones Django
+│   │   ├── authentication/ # Autenticación JWT
+│   │   ├── tasks/          # Gestión de tareas
+│   │   ├── users/          # Gestión de usuarios
+│   │   └── shared/         # Componentes compartidos
+│   ├── config/             # Configuración Django
+│   ├── Dockerfile          # Docker para backend
+│   ├── requirements.txt    # Dependencias Python
+│   └── manage.py
+├── frontend/               # React App
+│   ├── src/               # Código fuente React
+│   │   ├── components/    # Componentes React
+│   │   ├── contexts/      # Context API
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── services/      # Servicios API
+│   │   └── types/         # Tipos TypeScript
+│   ├── Dockerfile         # Docker para frontend
+│   ├── package.json       # Dependencias Node.js
+│   └── vite.config.ts     # Configuración Vite
+├── scripts/               # Scripts de utilidad
+├── docker-compose.yml     # Orquestación de servicios
+├── nginx.conf            # Configuración Nginx
+├── start-app.sh          # Script de inicio (Linux/macOS)
+├── start-app.bat         # Script de inicio (Windows)
+└── README.md             # Este archivo
+```
+
+## 🛠️ Comandos Útiles
+
+### 📊 **Monitoreo**
+```bash
+# Ver estado de contenedores
+docker compose ps
+
+# Ver logs en tiempo real
+docker compose logs -f
+
+# Ver logs de un servicio específico
+docker compose logs frontend
+docker compose logs backend
+docker compose logs nginx
+docker compose logs db
+```
+
+### 🔧 **Desarrollo**
+```bash
+# Reconstruir servicios
+docker compose up --build
+
+# Ejecutar comandos en el backend
+docker compose exec backend python manage.py shell
+docker compose exec backend python manage.py createsuperuser
+
+# Acceder a la base de datos
+docker compose exec db psql -U postgres -d todo_database
+
+# Ejecutar tests del backend
+docker compose exec backend python manage.py test
+```
+
+### 🧹 **Limpieza**
+```bash
+# Detener y eliminar contenedores
+docker compose down
+
+# Eliminar también volúmenes (datos de BD)
+docker compose down -v
+
+# Limpiar imágenes no utilizadas
+docker system prune
+```
+
+## 🔧 Configuración Avanzada
+
+### 🔀 **Cambiar Puertos**
+
+Si algún puerto está ocupado, edita `docker-compose.yml`:
+
+```yaml
+nginx:
+  ports:
+    - "8081:80"  # Cambiar 8080 por 8081
+
+frontend:
+  ports:
+    - "5174:5173"  # Cambiar 5173 por 5174
+```
+
+### 🔒 **Variables de Entorno**
+
+Todas las configuraciones están en `docker-compose.yml`. Para producción, cambia:
+
+- `SECRET_KEY`: Usar una clave secreta segura
+- `DEBUG`: Cambiar a `False`
+- `ALLOWED_HOSTS`: Configurar hosts permitidos
+- Credenciales de base de datos
+
+### 🚀 **Modo Producción**
+
+Para producción, crea un `docker-compose.prod.yml`:
+
+```yaml
+services:
+  backend:
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=tu-clave-secreta-segura
+      - ALLOWED_HOSTS=tu-dominio.com
+```
+
+## 🐛 Solución de Problemas
+
+### ❌ **Los contenedores no inician**
+```bash
+# Verificar logs
+docker compose logs
+
+# Reconstruir desde cero
+docker compose down -v
+docker compose up --build
+```
+
+### ❌ **Puerto ocupado**
+```
+Error: bind: address already in use
+```
+**Solución**: Cambiar puertos en `docker-compose.yml` o detener el servicio que usa el puerto.
+
+### ❌ **Error de permisos (Linux/macOS)**
+```bash
+chmod +x start-app.sh
+```
+
+### ❌ **Frontend no carga**
+- Verificar que nginx esté funcionando: `docker compose logs nginx`
+- Verificar que frontend esté funcionando: `docker compose logs frontend`
+- Probar acceso directo: http://localhost:5173
+
+### ❌ **Backend no responde**
+- Verificar logs: `docker compose logs backend`
+- Verificar base de datos: `docker compose logs db`
+- Probar acceso directo: http://localhost:8000
+
+### ❌ **Base de datos no conecta**
+```bash
+# Verificar estado de la BD
+docker compose exec db pg_isready -U postgres
+
+# Recrear volumen de BD
+docker compose down -v
+docker compose up --build
+```
+
+## 🎯 Características Técnicas
+
+### 🔒 **Seguridad**
+- Autenticación JWT con refresh tokens
+- Rate limiting en endpoints críticos
+- Protección CORS configurada
+- Validación de entrada completa
+- Sanitización de datos
+
+### 📈 **Performance**
+- Nginx como proxy reverso
+- Archivos estáticos optimizados
+- Queries de base de datos optimizadas
+- Frontend con lazy loading
+- Caché de dependencias en Docker
+
+### 🧪 **Testing**
+- Tests unitarios en backend
+- Cobertura de API endpoints
+- Validación de modelos
+- Tests de autenticación
+
+### 📚 **Documentación**
+- API documentada con Swagger
+- Código comentado
+- README completo
+- Arquitectura documentada
+
+## 🚀 Despliegue
+
+### 🐳 **Docker Hub**
+```bash
+# Construir y subir imágenes
+docker build -t tu-usuario/todolist-backend ./backend
+docker build -t tu-usuario/todolist-frontend ./frontend
+docker push tu-usuario/todolist-backend
+docker push tu-usuario/todolist-frontend
+```
+
+### ☁️ **Cloud Deployment**
+El proyecto está listo para desplegar en:
+- AWS (ECS, EC2)
+- Google Cloud (Cloud Run, GKE)
+- Azure (Container Instances, AKS)
+- DigitalOcean (App Platform)
+- Heroku
+- Railway
+
+## 📝 Licencia
+
+MIT License - Puedes usar este proyecto libremente.
+
+---
+
+## 🎉 ¡Listo para Usar!
+
+Con un solo comando tienes una aplicación completa funcionando:
 
 ```bash
-# Run all tests
-python manage.py test
-
-# Run specific test module
-python manage.py test api.tests.TaskModelTest
-
-# Run with coverage
-coverage run --source='.' manage.py test
-coverage report
+./start-app.sh
 ```
 
-## Admin Interface
-
-Access the Django admin at http://localhost:8000/admin/ with enhanced features:
-
-- **User Management**: View users with task counts and activity status
-- **Task Management**: Advanced filtering, search, and bulk operations
-- **Color-coded Priority**: Visual priority indicators
-- **Overdue Detection**: Automatic overdue task highlighting
-- **Bulk Actions**: Mark multiple tasks as completed/pending
-
-## Environment Variables
-
-Create a `.env` file based on `.env.example`:
-
-```env
-# Database Configuration
-DB_NAME=todo_database
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=localhost
-DB_PORT=5434
-
-# Django Configuration
-SECRET_KEY=your-secret-key-here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-## Logging
-
-The application includes comprehensive logging:
-
-- **File Logging**: Logs are written to `logs/django.log`
-- **Console Logging**: Development-friendly console output
-- **API Logging**: Track API operations and errors
-
-## Security Features
-
-- **JWT Authentication**: Secure token-based authentication with refresh tokens
-- **Account Security**: Automatic account locking after 5 failed login attempts
-- **Rate Limiting**: API rate limiting (5 login attempts per minute, 3 registrations per minute)
-- **Brute Force Protection**: Django Axes integration for advanced attack prevention
-- **Input Validation**: Comprehensive validation and sanitization
-- **CORS Configuration**: Secure cross-origin resource sharing setup
-- **Environment-based Configuration**: Secure settings management
-- **Password Security**: Django's built-in password validation
-- **IP Tracking**: Login attempt tracking with IP address logging
-
-## Performance Optimizations
-
-- Database query optimization with `select_related` and `prefetch_related`
-- Efficient filtering with database indexes
-- Pagination for large datasets
-- Optimized admin queries
-
-## Troubleshooting
-
-### Database Issues
-
-If you encounter database-related errors:
-
-1. **Missing columns error** (e.g., "column 'last_login' does not exist"):
-   ```bash
-   # Reset and reapply migrations
-   python manage.py migrate api zero --fake
-   python manage.py migrate api
-   ```
-
-2. **Migration conflicts**:
-   ```bash
-   # Check migration status
-   python manage.py showmigrations
-   
-   # If needed, reset all migrations
-   python manage.py migrate --fake-initial
-   ```
-
-### Configuration Warnings
-
-If you see Django Axes or static files warnings:
-- Ensure the `static` directory exists: `mkdir -p static`
-- Check that `AUTHENTICATION_BACKENDS` includes `axes.backends.AxesStandaloneBackend`
-- Verify Axes configuration uses modern settings (not deprecated ones)
-
-### Authentication Issues
-
-1. **Account locked**: Wait 30 minutes or reset failed attempts in Django admin
-2. **Token expired**: Use refresh token to get new access token
-3. **Rate limiting**: Wait for the rate limit window to reset
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
+**¡Abre tu navegador en http://localhost:8080 y disfruta! 🚀**

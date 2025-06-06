@@ -1,0 +1,16 @@
+FROM python:3.11-alpine
+
+# Instalar curl para verificar servicios
+RUN apk add --no-cache curl
+
+# Crear directorio de trabajo
+WORKDIR /app
+
+# Copiar el script
+COPY startup-info.py /app/
+
+# Hacer el script ejecutable
+RUN chmod +x /app/startup-info.py
+
+# Comando por defecto
+CMD ["python", "/app/startup-info.py"]
